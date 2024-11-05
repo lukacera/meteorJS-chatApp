@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import "../../client/styles/main.less"
 
 export const App = () => {
 
@@ -33,23 +34,24 @@ export const App = () => {
 
       {/* Input Container */}
       <div className="p-3 bg-dark border-top">
-        <div className="input-group">
+        <div className="d-flex">
           <input 
             type="text" 
-            className="form-control bg-dark text-white border-dark" 
+            className="form-control border-secondary bg-dark text-white" 
             placeholder="Type your message..."
             aria-label="Message"
+            id='messageInput'
             value={messageValue}
             onChange={(e) => setMessageValue(e.target.value)}
           />
           <button 
-            className="btn btn-primary" 
+            className="btn btn-primary ms-5" 
             type="button"
           >
             Send
           </button>
         </div>
-      </div>
+      </div>    
     </div>
   );
 };
