@@ -7,10 +7,12 @@ export default function MessagesControlsPanel({
     dateFilter,
     setDateFilter,
     sortDirection,
-    toggleSort
+    toggleSort,
+    dataStreamActive,
+    handleStreamToggle
 }) {
 return (
-    <div className="bg-dark p-3 mb-3 rounded">
+    <div className="bg-dark p-3 mb-3 rounded text-white">
         <div className="d-flex gap-3 align-items-center justify-content-between px-5">
             <div className="d-flex align-items-center gap-5">
                     <div className="d-flex align-items-center gap-2">
@@ -40,6 +42,17 @@ return (
                         />
                     </div>
             </div>
+            
+            <div className="d-flex align-items-center flex-column gap-2">
+                <label className="text-white mb-0">Start/stop data stream:</label>
+                <button 
+                className="btn btn-outline-light btn-sm"
+                onClick={() => handleStreamToggle(!dataStreamActive)}
+                >
+                    {dataStreamActive ? "Stop" : "Start"}
+                </button>
+            </div>
+
             <button
                 className="btn btn-outline-light btn-sm d-flex 
                 align-items-center gap-1"
