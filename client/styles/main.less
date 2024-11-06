@@ -1,5 +1,49 @@
 #messageInput {
     &::placeholder {
-        color: rgb(239, 238, 238)
+        color: rgb(239, 238, 238);
+    }
+}
+
+.position-relative {
+    &:hover {
+        .menu-btn {
+            opacity: 1 !important;
+            transition: opacity 0.2s ease-in-out;
+        }
+    }
+}
+
+.menu-btn {
+    transition: opacity 0.2s ease-in-out;
+    
+    &:hover {
+        transform: scale(1.1);
+    }
+}
+
+.dropdown-menu {
+    min-width: 120px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    padding: 0.5rem 0;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    color: #fff;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    
+    &:hover {
+        background: #363636;
+    }
+    
+    &.text-danger:hover {
+        background: #3f2828;
     }
 }

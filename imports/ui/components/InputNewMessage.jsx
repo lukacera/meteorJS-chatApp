@@ -5,8 +5,9 @@ export default function InputNewMessage() {
     
     const [messageValue, setMessageValue] = useState("");
   
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
         try {
+            e.preventDefault();
             const message = messageValue;
             // Prevent empty messages
             if (message.trim() === "") {
@@ -19,7 +20,7 @@ export default function InputNewMessage() {
         }
     }
     return (
-        <div className="p-3 bg-dark border-top">
+        <form className="p-3 bg-dark border-top">
             <div className="d-flex">
             <input 
                 type="text" 
@@ -32,12 +33,13 @@ export default function InputNewMessage() {
             />
             <button 
                 className="btn btn-primary ms-5" 
-                type="button"
+                type="submit"
                 onClick={handleSubmit}
+                disabled={messageValue.trim() === ""}
             >
                 Send
             </button>
             </div>
-        </div>   
+        </form>   
     )
 }
