@@ -145,7 +145,7 @@ export default function MessagesContainer() {
     }, [hasMoreMessages, isLoading]);
 
     return (
-        <div className="flex-grow-1 overflow-auto mb-3">
+        <div className="overflow-auto mb-3">
             <MessagesControlsPanel
                 limit={limit}
                 handleLimitChange={handleLimitChange}

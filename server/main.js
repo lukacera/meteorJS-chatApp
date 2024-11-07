@@ -52,7 +52,7 @@ Meteor.startup(async () => {
       } catch (error) {
         console.error('Error generating periodic message:', error);
       }
-    }, Math.random() * (7500 - 1000) + 1000);
+    }, Math.random() * 3000 + 1000);
 
   } catch (error) {
     console.error('Error during startup:', error);
