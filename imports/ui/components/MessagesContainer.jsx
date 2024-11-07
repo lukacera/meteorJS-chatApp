@@ -14,7 +14,10 @@ export default function MessagesContainer() {
     const [page, setPage] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [sortDirection, setSortDirection] = useState(-1); // -1 for desc, 1 for asc
-    const [dateFilter, setDateFilter] = useState('');
+    const [dateFilter, setDateFilter] = useState({
+        from: '',
+        to: ''
+    });
     const [dataStreamActive, setDataStreamActive] = useState(true);
     const [preservedMessages, setPreservedMessages] = useState([]);
     const endMessagesRef = useRef(null);
