@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTracker } from "meteor/react-meteor-data";
 import { MessagesCollection } from "../../api/messages/messages";
-import { Trash2, MoreVertical } from 'lucide-react';
 import { Meteor } from 'meteor/meteor';
 import MessagesControlsPanel from './MessagesControlsPanel';
 import Message from './Message';
@@ -9,17 +8,17 @@ import Message from './Message';
 const MESSAGES_PER_PAGE = 5;
 
 export default function MessagesContainer() {
-
     const [limit, setLimit] = useState(MESSAGES_PER_PAGE);
     const [page, setPage] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
-    const [sortDirection, setSortDirection] = useState(-1); // -1 for desc, 1 for asc
+    const [sortDirection, setSortDirection] = useState(-1);
     const [dateFilter, setDateFilter] = useState({
         from: '',
         to: ''
     });
     const [dataStreamActive, setDataStreamActive] = useState(true);
     const [preservedMessages, setPreservedMessages] = useState([]);
+    const [isCustomLimit, setIsCustomLimit] = useState(false);
     const endMessagesRef = useRef(null);
 
     const { messages, hasMoreMessages } = useTracker(() => {
@@ -33,11 +32,29 @@ export default function MessagesContainer() {
         Meteor.subscribe('messages', {
             limit: limit,
             skip: limit * page,
-            sortDirection
+            sortDirection,
+            dateFilter
         });
     
+        const query = {};
+        
+        // Add date filtering to the query
+        if (dateFilter.from || dateFilter.to) {
+            query.timestamp = {};
+            if (dateFilter.from) {
+                const fromDate = new Date(dateFilter.from);
+                fromDate.setHours(0, 0, 0, 0);
+                query.timestamp.$gte = fromDate;
+            }
+            if (dateFilter.to) {
+                const toDate = new Date(dateFilter.to);
+                toDate.setHours(23, 59, 59, 999);
+                query.timestamp.$lte = toDate;
+            }
+        }
+
         const messages = MessagesCollection.find(
-            {},
+            query,
             {
                 limit: limit,
                 skip: limit * page,
@@ -52,25 +69,48 @@ export default function MessagesContainer() {
 
     }, [limit, page, sortDirection, dateFilter, dataStreamActive, preservedMessages]);
 
+    const handleDateFilterChange = (newDateFilter) => {
+        setDateFilter(newDateFilter);
+        setPage(0); // Reset to first page when filter changes
+        
+        // Construct alert message based on filter values
+        let alertMessage = 'Date filter has been updated!';
+        if (newDateFilter.from && newDateFilter.to) {
+            alertMessage += ` Showing messages from ${newDateFilter.from} to ${newDateFilter.to}`;
+        } else if (newDateFilter.from) {
+            alertMessage += ` Showing messages from ${newDateFilter.from} onwards`;
+        } else if (newDateFilter.to) {
+            alertMessage += ` Showing messages up to ${newDateFilter.to}`;
+        }
+        
+        alert(alertMessage);
+    };
+
     const toggleSort = () => {
         setSortDirection(prev => prev * -1);
     };
 
     const handleStreamToggle = (newState) => {
-        if (!newState) { // If turning stream off(state is false)
-            setPreservedMessages(messages); 
+        if (!newState) {
+            setPreservedMessages(messages);
         }
         setDataStreamActive(newState);
     };
 
     const handleLimitChange = (e) => {
         const newLimit = parseInt(e.target.value) || MESSAGES_PER_PAGE;
+        if (newLimit === MESSAGES_PER_PAGE) {
+            setIsCustomLimit(false);
+        } else {
+            setIsCustomLimit(true);
+        }
         setLimit(newLimit);
-        setPage(0); // Reset page when changing limit
+        setPage(0);
     };
 
     const loadMore = () => {
         if (!isLoading && hasMoreMessages) {
+            console.log("Loading more messages...");
             setIsLoading(true);
             setLimit(prevLimit => prevLimit + MESSAGES_PER_PAGE);
         }
@@ -106,29 +146,31 @@ export default function MessagesContainer() {
 
     return (
         <div className="flex-grow-1 overflow-auto mb-3">
-            {/* Controls Panel */}
             <MessagesControlsPanel
                 limit={limit}
                 handleLimitChange={handleLimitChange}
                 dateFilter={dateFilter}
-                setDateFilter={setDateFilter}
+                setDateFilter={handleDateFilterChange}
                 sortDirection={sortDirection}
                 toggleSort={toggleSort}
                 dataStreamActive={dataStreamActive}
                 handleStreamToggle={handleStreamToggle}
+                customLimit={isCustomLimit}
+                setIsCustomLimit={setIsCustomLimit}
             />
-            {/* Messages List */}
+            
             <div className="p-3">
                 <div className="d-flex flex-column gap-3">
                     {messages.map((message) => (
                         <Message 
+                            key={message._id}
                             message={message}
                         />
                     ))}
-                    <div ref={endMessagesRef}>
+                    {!isCustomLimit && <div ref={endMessagesRef}>
                         {isLoading &&
                         <div className="spinner-border text-primary" role="status" />}
-                    </div>
+                    </div>}
                 </div>
             </div>
         </div>

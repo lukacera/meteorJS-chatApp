@@ -1,8 +1,10 @@
 import React from 'react'
-import { SortAsc, SortDesc } from 'lucide-react';
+import { SortAsc, SortDesc, RotateCcw } from 'lucide-react';
 
 export default function MessagesControlsPanel({
     limit,
+    customLimit,
+    setIsCustomLimit,
     handleLimitChange,
     dateFilter,
     setDateFilter,
@@ -11,6 +13,27 @@ export default function MessagesControlsPanel({
     dataStreamActive,
     handleStreamToggle
 }) {
+    const handleDateChange = (field, value) => {
+        const newDateFilter = {
+            ...dateFilter,
+            [field]: value
+        };
+        setDateFilter(newDateFilter);
+    };
+
+    const handleLimit = (e) => {
+        const value = parseInt(e.target.value);
+        if (value > 0 || e.target.value === '') {
+            handleLimitChange(e);
+        }
+    };
+
+    const handleReset = () => {
+        // Pass an event-like object with a default value of 5
+        handleLimitChange({ target: { value: 5 } });
+        setIsCustomLimit(false);
+    };
+
     return (
         <div className="bg-dark p-3 mb-3 rounded text-white">
             <div className="d-flex gap-3 align-items-center justify-content-between px-5">
@@ -19,15 +42,25 @@ export default function MessagesControlsPanel({
                         <label htmlFor="messageLimit" className="text-white mb-0">
                             Limit:
                         </label>
-                        <input
-                            id="messageLimit"
-                            type="number"
-                            className="form-control form-control-sm"
-                            style={{ width: '80px' }}
-                            value={limit}
-                            onChange={handleLimitChange}
-                            min={1}
-                        />
+                        <div className="d-flex align-items-center gap-2">
+                            <input
+                                id="messageLimit"
+                                type="number"
+                                className="form-control form-control-sm"
+                                style={{ width: '80px' }}
+                                value={customLimit ? limit : 0}
+                                onChange={handleLimit}
+                                min={1}
+                                placeholder="5"
+                            />
+                            <button
+                                className="btn btn-outline-light btn-sm d-flex align-items-center"
+                                onClick={handleReset}
+                                title="Reset limit to default"
+                            >
+                                <RotateCcw size={16} />
+                            </button>
+                        </div>
                     </div>
                     <div className="d-flex align-items-center gap-2">
                         <label htmlFor="fromDate" className="text-white mb-0">
@@ -38,10 +71,7 @@ export default function MessagesControlsPanel({
                             type="date"
                             className="form-control form-control-sm"
                             value={dateFilter.from}
-                            onChange={(e) => setDateFilter({
-                                ...dateFilter,
-                                from: e.target.value
-                            })}
+                            onChange={(e) => handleDateChange('from', e.target.value)}
                         />
                     </div>
                     <div className="d-flex align-items-center gap-2">
@@ -53,10 +83,7 @@ export default function MessagesControlsPanel({
                             type="date"
                             className="form-control form-control-sm"
                             value={dateFilter.to}
-                            onChange={(e) => setDateFilter({
-                                ...dateFilter,
-                                to: e.target.value
-                            })}
+                            onChange={(e) => handleDateChange('to', e.target.value)}
                         />
                     </div>
                 </div>

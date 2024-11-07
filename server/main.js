@@ -2,22 +2,33 @@ import { Meteor } from 'meteor/meteor';
 import { MessagesCollection } from '../imports/api/messages/messages';
 import { generateMessage, insertMessage } from '../imports/api/messages/utils';
 import "../imports/api/messages/methods"
-Meteor.publish('messages', function({ limit, skip, sortDirection }) {
-  console.log('Subscribing to messages with limit:', limit, 'skip:', skip, 'sortDirection:', sortDirection);
+
+Meteor.publish('messages', function({ limit, skip, sortDirection, dateFilter = {} }) {
+  const query = {};
   
-  // Add query object (it was undefined in your code)
-  const query = {};  // You can add conditions here if needed
+  if (dateFilter.from || dateFilter.to) {
+    query.timestamp = {};
+    if (dateFilter.from) {
+      const fromDate = new Date(dateFilter.from);
+      fromDate.setHours(0, 0, 0, 0);
+      query.timestamp.$gte = fromDate;
+    }
+    if (dateFilter.to) {
+      const toDate = new Date(dateFilter.to);
+      toDate.setHours(23, 59, 59, 999);
+      query.timestamp.$lte = toDate;
+    }
+  }
   
   return MessagesCollection.find(
     query,
     {
       limit: limit,
       skip: skip,
-      sort: { timestamp: sortDirection } 
+      sort: { timestamp: sortDirection }
     }
   );
 });
-
 
 Meteor.startup(async () => {
   try {
@@ -41,7 +52,7 @@ Meteor.startup(async () => {
       } catch (error) {
         console.error('Error generating periodic message:', error);
       }
-    }, Math.random() * (10000 - 1000) + 1000);
+    }, Math.random() * (7500 - 1000) + 1000);
 
   } catch (error) {
     console.error('Error during startup:', error);
